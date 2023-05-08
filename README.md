@@ -1,0 +1,1 @@
+# BetteryMaster_Qt
