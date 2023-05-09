@@ -325,10 +325,11 @@ void MainWindow::changeChart()
 {
     float v1=0,v2=0, v3=0, v4=0, v5=0, v6=0, v7=0, v8=0,
             a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0;
-    QColor colorm(175, 175, 175);
-    QColor color1(175, 175, 175);
-    QColor color2(175, 175, 175);
-    QColor color3(175, 175, 175);
+    QColor colorm(0, 0, 0);
+    QColor color1(0, 0, 0);
+    QColor color2(0, 0, 0);
+    QColor color3(0, 0, 0);
+    QColor colorBackground(242, 241, 245);
 
     if(!run_chart_flag) return;
     QLayoutItem *child;
@@ -535,11 +536,11 @@ void MainWindow::changeChart()
     }
 
     axisX = new QValueAxis();
-    axisX->setTitleText("Time/Minute");
+    //axisX->setTitleText("Time/Minute");
     QFont labelsFont;
     labelsFont.setPixelSize(18);
     axisX->setTitleFont(labelsFont);
-    axisX->setTitleBrush(QBrush(Qt::white));
+    axisX->setTitleBrush(QBrush(Qt::black));
     axisX->setLabelsColor(color1);
     axisX->setTickCount(9);
 
@@ -573,7 +574,7 @@ void MainWindow::changeChart()
     axisY = new QValueAxis();
     axisY->setTitleText("U/V");
     axisY->setTitleFont(labelsFont);
-    axisY->setTitleBrush(QBrush(Qt::white));
+    axisY->setTitleBrush(QBrush(Qt::black));
     axisY->setLabelsColor(color2);
     axisY->setTickCount(6);
     axisY->setRange(range_V_min*0.8,range_V_max*1.2);
@@ -597,7 +598,7 @@ void MainWindow::changeChart()
     axisY3->setTitleText("I/A");
     axisY3->setTitleFont(labelsFont);
     axisY3->setLabelsColor(color3);
-    axisY3->setTitleBrush(QBrush(Qt::white));
+    axisY3->setTitleBrush(QBrush(Qt::black));
     axisY3->setTickCount(6);
     axisY3->setRange(range_A_min*0.7,range_A_max*1.8);
     axisY3->setGridLineColor(QColor(62,62,62));
@@ -617,8 +618,12 @@ void MainWindow::changeChart()
 
     QChartView *ChartView = new QChartView(chart);
     ChartView->setRenderHint(QPainter::Antialiasing);
-    ChartView->setBackgroundBrush(QBrush(QColor("black")));
-    chart->setBackgroundBrush(QBrush(QColor(23,23,23)));
+//    ChartView->setBackgroundBrush(QBrush(QColor("black")));
+    ChartView->setBackgroundBrush(QBrush(colorBackground));
+    chart->layout()->setContentsMargins(0, 0, 0, 0);//设置外边界全部为0
+    chart->setMargins(QMargins(0, 0, 0, 0));//设置内边界全部为0
+    chart->setBackgroundRoundness(0); //设置背景区域无圆角
+    chart->setBackgroundBrush(QBrush(colorBackground));
 
     ui->LayoutChart->addWidget(ChartView);
 }
@@ -666,7 +671,7 @@ void MainWindow::dataReceived(QByteArray data)
                       ui->labelChargeRate->setText(tr("最大 1200W"));
                       ui->labelDisChargeRate->setText(tr("最大 90W"));
                       ui->label_18->setText(tr("停止电流"));
-                      ui->label_20->setText(tr("A"));
+                      ui->label_27->setText(tr("A"));
                       ui->infoTable->setColumnHidden(7, true);
                       connectMulti = 1;
                       TesterType=5; break;
@@ -744,7 +749,79 @@ void MainWindow::dataReceived(QByteArray data)
                 int BatteryType_b = data.toHex().mid(4,2).toInt(&bStatus,16);
                 BatteryType = data.toHex().mid(4,2);
                 //TesterType = 1：BM70-5、 2：BM70-18、 3：BM200-5-D、 4：BM200-32-D、 5：BM1200-5、 6：BM1200-32
-                if(TesterType == 5)
+                if(TesterType == 3)
+                {
+                    //根据不同电池类型
+                    if(BatteryType_b == 1)
+                    {
+                        float BatteryV_b = result * 3.7;
+                        ui->boxBatteryType->setCurrentIndex(1);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"3.7"});
+                    }
+                    else if(BatteryType_b == 2)
+                    {
+                        float BatteryV_b = result * 3.2;
+                        ui->boxBatteryType->setCurrentIndex(2);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"3.2"});
+                    }
+                    else if(BatteryType_b == 3)
+                    {
+                        float BatteryV_b = result * 2.0;
+                        ui->boxBatteryType->setCurrentIndex(3);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"2.0","4.0"});
+                    }
+                    else if(BatteryType_b == 4)
+                    {
+                        float BatteryV_b = result * 1.2;
+                        ui->boxBatteryType->setCurrentIndex(4);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"1.2","2.4","3.6","4.8"});
+                    }
+                }
+                else if(TesterType == 4)
+                {
+                    //根据不同电池类型
+                    if(BatteryType_b == 1)
+                    {
+                        float BatteryV_b = result * 3.7;
+                        ui->boxBatteryType->setCurrentIndex(1);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"3.7","7.4","11.1","14.8","18.5","22.2","25.9"});
+                    }
+                    else if(BatteryType_b == 2)
+                    {
+                        float BatteryV_b = result * 3.2;
+                        ui->boxBatteryType->setCurrentIndex(2);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"3.2","6.4","9.6","12.8","16","19.2","22.4","25.6"});
+                    }
+                    else if(BatteryType_b == 3)
+                    {
+                        float BatteryV_b = result * 2.0;
+                        ui->boxBatteryType->setCurrentIndex(3);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"2.0","4.0","6.0","8.0","10.0","12.0","14.0","16.0","18.0","20.0","22.0","24.0"});
+                    }
+                    else if(BatteryType_b == 4)
+                    {
+                        float BatteryV_b = result * 1.2;
+                        ui->boxBatteryType->setCurrentIndex(4);
+                        ui->boxBatteryV->addItem(QString::number(BatteryV_b));
+                        ui->boxBatteryV->setCurrentIndex(0);
+                        ui->boxBatteryV->addItems({"1.2","2.4","3.6","4.8","6.0","7.2","8.4","9.6","10.8","12.0","13.2","14.4","15.6","16.8","18.0","19.2","20.4","21.6"});
+                    }
+                }
+                else if(TesterType == 5)
                 {
                     //根据不同电池类型
                     if(BatteryType_b == 1)
@@ -973,8 +1050,8 @@ void MainWindow::ButtonSetColor()
     QList<QPushButton*> btns = ui->ButtonWidget->findChildren<QPushButton*>();
     foreach(QPushButton* btn, btns)
     {
-        btn->setStyleSheet("background-color: #00C5CD;"
-                           "color: #FFFFFF;");
+        btn->setStyleSheet("background-color: #f2f2f2;"
+                           "color: #000000;");
     }
 }
 
