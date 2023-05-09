@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>280</width>
-    <height>200</height>
+    <height>270</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>280</width>
-    <height>200</height>
+    <height>270</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>280</width>
-    <height>200</height>
+    <height>270</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -41,7 +41,7 @@
             </size>
            </property>
            <property name="text">
-            <string>串口号：</string>
+            <string>串 口 号：</string>
            </property>
           </widget>
          </item>
@@ -63,12 +63,34 @@
             </size>
            </property>
            <property name="text">
-            <string>波特率：</string>
+            <string>波 特 率：</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QComboBox" name="comboBox_baudrate"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_5" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>级联数量：</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_max"/>
          </item>
         </layout>
        </widget>

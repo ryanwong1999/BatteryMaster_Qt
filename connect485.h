@@ -2,17 +2,14 @@
 #define CONNECT485_H
 
 #include <QDialog>
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
 #include <QTimer>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QThread>
-#include <QStringList>
-#include <QList>
-#include <QtSerialPort/QSerialPort>         // 提供访问串口的功能
-#include <QtSerialPort/QSerialPortInfo>     // 提供系统中存在的串口信息
-#include <QMessageBox>
-#include <QDebug>
 
+//#include "batterywidget.h"
 
 namespace Ui {
 class connect485;
@@ -28,15 +25,18 @@ public:
     void scan_serial();
     void init_dialog();
     void sendSingnalFunc(int cmd);
+    void sendMaxDevicesFunc(int num);
     void Send_Data(const QByteArray &data);
-    void Delay_MSec(unsigned int msec);
     unsigned short crc16(const void *s, int n);
+    void Delay_MSec(unsigned int msec);
     static void port_close();
     static bool serial_open_flag;
+    static int max_devices;
 
 signals:
     void dataReceived(const QByteArray &data);
     void setDisableUI(int cmd);
+    void setMaxDevices(int num);
 
 private slots:
     void on_btn_scan_clicked();
@@ -47,6 +47,7 @@ private:
     Ui::connect485 *ui;
     QSerialPort *serial;
     QThread mThread;
+//    BatteryWidget m_battery_widget;
 
 };
 

@@ -111,6 +111,7 @@ private slots:
 //    void on_servicesComboBox_currentIndexChanged(int index);
 //    void on_backToHomePage_clicked();
     void DisableUI(int cmd);
+    void getMaxDevices(int num);
     void GetStatus1();
     void GetStatus2();
     void GetStatus3();

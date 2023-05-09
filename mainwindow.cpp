@@ -8,6 +8,7 @@ bool btnPauseResume = false;
 int shutdown_Dialog=0;
 int i_0a = 0, i_0c = 0;
 int fill_cnt = 0;
+int maxDevices = 1;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     //485连接成功后禁用combobox ui，确保不会蓝牙和485同时连接
     connect(&m_connect485, &connect485::setDisableUI, this, &MainWindow::DisableUI);
     connect(&m_connect485, &connect485::dataReceived, this, &MainWindow::dataReceived);
+    connect(&m_connect485, &connect485::setMaxDevices, this, &MainWindow::getMaxDevices);
     //初始化曲线图
     initChart();
     //初始化定时器
@@ -36,9 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer5,SIGNAL(timeout()),this,SLOT(writeToCSV()));
     connect(timer6,SIGNAL(timeout()),this,SLOT(deRate()));
     //开始倒计时
-    timer1->start(900);
-    timer2->start(500);
-    timer3->start(1100);
+    timer1->start(1100);
+    timer2->start(2550);
+//    timer3->start(1100);
 
     //给表格先填充0
     for(int i = 0; i < 8; i++)
@@ -88,8 +90,8 @@ void MainWindow::GetStatus1()
     {
         if(i_0a == 0)
         {
-            QByteArray read_0a = crc16Hex("000a");
-            m_connect485.Send_Data(read_0a);
+            QByteArray disableMainCtrl = crc16Hex("bbccdd");
+            m_connect485.Send_Data(disableMainCtrl);
             i_0a = 1;
         }
         else if(i_0a == 1 && currentState != 1)
@@ -129,50 +131,28 @@ void MainWindow::GetStatus2()
     {
         if(i_0c == 0)
         {
-            QByteArray read_0c = crc16Hex("010c");
-            m_connect485.Send_Data(read_0c);
+            //轮询
+            for(int k = 0; k <= maxDevices; k++)
+            {
+                QString Head = QString("%1").arg(k, 2, 16, QLatin1Char('0'));
+                QString dataString = Head + "0a";
+                QByteArray getAddress = crc16Hex(dataString);
+                m_connect485.Send_Data(getAddress);
+                Delay_MSec(60);
+            }
             i_0c = 1;
         }
         else if(i_0c == 1)
         {
-            QByteArray read_0c = crc16Hex("020c");
-            m_connect485.Send_Data(read_0c);
-            i_0c = 2;
-        }
-        else if(i_0c == 2)
-        {
-            QByteArray read_0c = crc16Hex("030c");
-            m_connect485.Send_Data(read_0c);
-            i_0c = 3;
-        }
-        else if(i_0c == 3)
-        {
-            QByteArray read_0c = crc16Hex("040c");
-            m_connect485.Send_Data(read_0c);
-            i_0c = 4;
-        }
-        else if(i_0c == 4)
-        {
-            QByteArray read_0c = crc16Hex("050c");
-            m_connect485.Send_Data(read_0c);
-            i_0c = 5;
-        }
-        else if(i_0c == 5)
-        {
-            QByteArray read_0c = crc16Hex("060c");
-            m_connect485.Send_Data(read_0c);
-            i_0c = 6;
-        }
-        else if(i_0c == 6)
-        {
-            QByteArray read_0c = crc16Hex("070c");
-            m_connect485.Send_Data(read_0c);
-            i_0c = 7;
-        }
-        else if(i_0c == 7)
-        {
-            QByteArray read_0c = crc16Hex("080c");
-            m_connect485.Send_Data(read_0c);
+            //轮询
+            for(int k = 0; k <= maxDevices; k++)
+            {
+                QString Head = QString("%1").arg(k, 2, 16, QLatin1Char('0'));
+                QString dataString = Head + "0c";
+                QByteArray getAddress = crc16Hex(dataString);
+                m_connect485.Send_Data(getAddress);
+                Delay_MSec(60);
+            }
             i_0c = 0;
         }
     }
@@ -1928,6 +1908,12 @@ void MainWindow::DisableUI(int cmd)
         default:
             break;
     }
+}
+
+void MainWindow::getMaxDevices(int num)
+{
+    qDebug()<< "getMaxDevices " << num;
+    maxDevices = num;
 }
 
 //crc校验
