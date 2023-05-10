@@ -915,7 +915,7 @@ void MainWindow::dataReceived(QByteArray data)
                 BatteryAh = data.toHex().mid(10,4);
                 ui->EditBatteryAh->setText(QString::number(BatteryAh_b));
                 //充电电压
-                int ChargeV_b = data.toHex().mid(14,4).toInt(&bStatus,16);
+                float ChargeV_b = data.toHex().mid(14,4).toInt(&bStatus,16);
                 ChargeV = data.toHex().mid(14,4);
                 ui->EditChargeV->setText(QString::number(ChargeV_b/100));
                 //充电电流
