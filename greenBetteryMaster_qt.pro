@@ -18,14 +18,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    JQChecksum.cpp \
     connect485.cpp \
-    jqchecksum.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    JQChecksum.h \
     connect485.h \
-    jqchecksum.h \
     mainwindow.h
 
 FORMS += \

@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QtCharts/QChartView>
 #include <QTimer>
+#include <QDateTime>
 #include <QtCharts>
 #include <QTranslator>
 #include <QtCharts>
@@ -116,7 +117,7 @@ private slots:
     void GetStatus2();
     void GetStatus3();
     void changeChart();
-//    void writeToCSV();
+    void writeToCSV();
     void deRate();
 //    void connectDevice();
     void on_boxBatteryType_currentIndexChanged(int index);

@@ -9,6 +9,7 @@ int shutdown_Dialog=0;
 int i_0a = 0, i_0c = 0;
 int fill_cnt = 0;
 int maxDevices = 1;
+int firstStart = 0;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,33 +43,34 @@ MainWindow::MainWindow(QWidget *parent)
     timer2->start(2550);
 //    timer3->start(1100);
 
-    //给表格先填充0
-    for(int i = 0; i < 8; i++)
-    {
-        for(int j = 0; j < 8; j++)
-        {
-            ui->infoTable->setItem(i,j,new QTableWidgetItem("0"));
-        }
-    }
-
     OnOff = crc16Hex("000301");
 }
 
 //析构
 MainWindow::~MainWindow()
 {
+    qDebug() << "886--------------------------------";
     //暂停
     OnOff = crc16Hex("000300");
-    m_connect485.Send_Data(OnOff);
-    Delay_MSec(100);
+    for(int i = 0; i <= 50; i++)
+    {
+        m_connect485.Send_Data(OnOff);
+        Delay_MSec(50);
+    }
     //返回主界面
     QByteArray gohome = crc16Hex("00010100");
-    m_connect485.Send_Data(gohome);
-    Delay_MSec(100);
-    m_connect485.Send_Data(gohome);
-    Delay_MSec(100);
+    for(int i = 0; i <= 50; i++)
+    {
+        m_connect485.Send_Data(gohome);
+        Delay_MSec(50);
+    }
     //关闭串口
-    connect485::port_close();
+    for(int i = 0; i <= 50; i++)
+    {
+        connect485::port_close();
+        Delay_MSec(50);
+    }
+    Delay_MSec(100);
     delete ui;
     delete timer1;
     delete timer2;
@@ -76,7 +78,12 @@ MainWindow::~MainWindow()
     delete timer4;
     delete timer5;
     delete timer6;
-    connect485::port_close();
+    //关闭串口
+    for(int i = 0; i <= 50; i++)
+    {
+        connect485::port_close();
+        Delay_MSec(50);
+    }
 }
 
 //定时器结束1
@@ -170,6 +177,34 @@ void MainWindow::GetStatus3()
         //禁用主控
         QByteArray disableMainCtrl = crc16Hex("bbccdd");
         m_connect485.Send_Data(disableMainCtrl);
+    }
+}
+
+//将数据写进表格
+void MainWindow::writeToCSV()
+{
+    qDebug() << "writeToCSV";
+    time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+    char e [80];
+    strftime(e,80,"%H:%M:%S",now);
+
+    QFile file(filename_data);
+    if (file.open(QFile::WriteOnly | QIODevice::Append))
+    {
+        QTextStream out(&file);
+        QString n1[225];
+        QString n2[225];
+        out << e;
+        for(int i = 0; i < maxDevices; i++)
+        {
+            n1[i] = ui->infoTable->item(i, 1)->text();
+            n2[i] = ui->infoTable->item(i, 2)->text();
+            out << "," << n1[i] << ","<< n2[i];
+            Delay_MSec(100);
+        }
+        out << "\n";
+        file.close();
     }
 }
 
@@ -633,7 +668,7 @@ void MainWindow::dataReceived(QByteArray data)
                       ui->labelChargeRate->setText(tr("最大 150W"));
                       ui->labelDisChargeRate->setText(tr("最大 90W"));
                       ui->label_18->setText(tr("温度截至"));
-                      ui->label_20->setText(tr("°C"));
+                      ui->label_27->setText(tr("°C"));
                       ui->infoTable->setColumnHidden(7, false);
                       TesterType=3; break;
               case 04: ui->labelProductModel->setText("BM200-32-D");
@@ -642,7 +677,7 @@ void MainWindow::dataReceived(QByteArray data)
                       ui->labelChargeRate->setText(tr("最大 200W"));
                       ui->labelDisChargeRate->setText(tr("最大 90W"));
                       ui->label_18->setText(tr("温度截至"));
-                      ui->label_20->setText(tr("°C"));
+                      ui->label_27->setText(tr("°C"));
                       ui->infoTable->setColumnHidden(7, false);
                       TesterType=4; break;
               case 05: ui->labelProductModel->setText("BM1200-05-D");
@@ -661,7 +696,7 @@ void MainWindow::dataReceived(QByteArray data)
                       ui->labelChargeRate->setText(tr("最大 1200W"));
                       ui->labelDisChargeRate->setText(tr("最大 90W"));
                       ui->label_18->setText(tr("停止电流"));
-                      ui->label_20->setText(tr("A"));
+                      ui->label_27->setText(tr("A"));
                       ui->infoTable->setColumnHidden(7, true);
                       connectMulti = 1;
                       TesterType=6; break;
@@ -719,8 +754,9 @@ void MainWindow::dataReceived(QByteArray data)
         else if (data.toHex().mid(2,2) == "0b")
         {
             qDebug()<<"Get 0b";
-            //第几路设备
+
             int device_num = data.toHex().mid(0,2).toInt(&bStatus,16);
+            qDebug()<<"device_num"<<device_num;
             if(device_num == 1)
             {
                 ui->boxBatteryV->clear();
@@ -728,7 +764,8 @@ void MainWindow::dataReceived(QByteArray data)
                 BatteryV = data.toHex().mid(6,4);
                 int BatteryType_b = data.toHex().mid(4,2).toInt(&bStatus,16);
                 BatteryType = data.toHex().mid(4,2);
-                //TesterType = 1：BM70-5、 2：BM70-18、 3：BM200-5-D、 4：BM200-32-D、 5：BM1200-5、 6：BM1200-32
+                qDebug()<<"TesterType "<< TesterType<<"  BatteryType_b "<< BatteryType_b;
+                //TesterType = 1：BM70-5、 2：BM70-18、 3：BM200-5-D、 4：BM200-32-D
                 if(TesterType == 3)
                 {
                     //根据不同电池类型
@@ -902,6 +939,7 @@ void MainWindow::dataReceived(QByteArray data)
                 float StopA_b = data.toHex().mid(36,2).toInt(&bStatus,16);
                 ProtectT = data.toHex().mid(34,2);
                 StopA = data.toHex().mid(36,2);
+
                 if(TesterType == 5 || TesterType == 6) ui->EditProtectT->setText(QString::number(StopA_b/10));
                 else ui->EditProtectT->setText(QString::number(ProtectT_b));
             }
@@ -916,12 +954,54 @@ void MainWindow::dataReceived(QByteArray data)
                 fill_cnt++;
                 if(fill_cnt > 2)
                 {
-                    QByteArray read_0b = crc16Hex("000b");
-                    m_connect485.Send_Data(read_0b);
+                    //轮询
+                    for(int k = 0; k <= maxDevices; k++)
+                    {
+                        QString Head = QString("%1").arg(k, 2, 16, QLatin1Char('0'));
+                        QString dataString = Head + "0b";
+                        QByteArray getAddress = crc16Hex(dataString);
+                        m_connect485.Send_Data(getAddress);
+                        Delay_MSec(50);
+                    }
+//                    QByteArray read_0b = crc16Hex("000b");
+//                    m_connect485.Send_Data(read_0b);
                     fill_cnt = 0;
                     getvalue_0b=1;
                 }
             }
+            if (chartStart == 0)
+            {
+                if(ui->infoTable->item(0,2)->text().toFloat()>0.1)
+                {
+                    if (connectState == 1)
+                    {
+                        qDebug()<< "初始化表格";
+                        // 获取当前本地时间
+                        QDateTime now = QDateTime::currentDateTime();
+                        // 将时间转换为字符串（例如，格式为 "yyyy-MM-dd HH:mm:ss"）
+                        QString localTime = now.toString("yyyy-MM-dd HH:mm:ss");
+                        // 格式化时间为字符串
+                        QDir().mkdir("./BatteryTestData");
+                        filename_data = "./BatteryTestData/data_" + now.toString("yyyy-MM-dd_hh-mm-ss") + ".csv";
+                        // 打开文件并写入数据
+                        QFile file(filename_data);
+                        if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                        {
+                            QTextStream out(&file);
+                            out << "Time" ;
+                            for(int i = 1; i <= maxDevices; i++)
+                            {
+                                out << ","<< "V" + QString::number(i) << ","<< "A" + QString::number(i) ;
+                            }
+                            out << "\n";
+                            file.close();
+                        }
+                        timer5->start(6002);
+                    }
+                    chartStart = 1;
+                }
+            }
+            connectState=1;
             int device_num = data.toHex().mid(0,2).toInt(&bStatus,16);
             device_num -= 1;
             //进入485模式用于处理"0c"读取运行参数信息的函数
@@ -1914,6 +1994,23 @@ void MainWindow::getMaxDevices(int num)
 {
     qDebug()<< "getMaxDevices " << num;
     maxDevices = num;
+    if(firstStart == 0)
+    {
+        for(int i = 1; i < maxDevices; i++)
+        {
+            int row = ui->infoTable->rowCount(); // 获取当前行数
+            ui->infoTable->insertRow(row); // 在最后一行插入新行
+        }
+    }
+    firstStart += 1;
+    //给表格先填充0
+    for(int i = 0; i < maxDevices; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            ui->infoTable->setItem(i,j,new QTableWidgetItem("0"));
+        }
+    }
 }
 
 //crc校验
