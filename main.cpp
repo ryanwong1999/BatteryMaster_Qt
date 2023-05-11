@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+    a.setQuitOnLastWindowClosed(true);//最后一个窗口关闭后，程序退出
     //加载样式表
     QFile file(":/css/index.css");
     if (file.open(QFile::ReadOnly)) {

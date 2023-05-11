@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     //默认选择485模式
     ui->radioBtn_485->setChecked(true);
+    this->setAttribute(Qt::WA_QuitOnClose,  true); //关闭此窗口，会立即执行析构函数
     this->setWindowTitle("BM 系列 电池检测-充电-放电-维护仪客户端软件");
     //485连接成功后禁用combobox ui，确保不会蓝牙和485同时连接
     connect(&m_connect485, &connect485::setDisableUI, this, &MainWindow::DisableUI);
@@ -40,10 +41,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer5,SIGNAL(timeout()),this,SLOT(writeToCSV()));
     connect(timer6,SIGNAL(timeout()),this,SLOT(deRate()));
     //开始倒计时
-    timer1->start(1100);
+    timer1->start(500);
     timer2->start(2550);
 //    timer3->start(1100);
-
+    connectMulti = 1;
     OnOff = crc16Hex("000301");
 }
 
@@ -53,20 +54,20 @@ MainWindow::~MainWindow()
     qDebug() << "886--------------------------------";
     //暂停
     OnOff = crc16Hex("000300");
-    for(int i = 0; i <= 50; i++)
+    for(int i = 0; i <= 20; i++)
     {
         m_connect485.Send_Data(OnOff);
         Delay_MSec(50);
     }
     //返回主界面
     QByteArray gohome = crc16Hex("00010100");
-    for(int i = 0; i <= 50; i++)
+    for(int i = 0; i <= 20; i++)
     {
         m_connect485.Send_Data(gohome);
         Delay_MSec(50);
     }
     //关闭串口
-    for(int i = 0; i <= 50; i++)
+    for(int i = 0; i <= 20; i++)
     {
         connect485::port_close();
         Delay_MSec(50);
@@ -80,7 +81,7 @@ MainWindow::~MainWindow()
     delete timer5;
     delete timer6;
     //关闭串口
-    for(int i = 0; i <= 50; i++)
+    for(int i = 0; i <= 20; i++)
     {
         connect485::port_close();
         Delay_MSec(50);
@@ -951,7 +952,7 @@ void MainWindow::dataReceived(QByteArray data)
                     (ui->EditDischargeRate->text() == "" && ui->EditProtectT->text() == "" && TesterType != 0 ))
             {
                 fill_cnt++;
-                if(fill_cnt > 2)
+                if(fill_cnt >= 1)
                 {
                     //轮询
                     for(int k = 0; k <= maxDevices; k++)
@@ -1132,10 +1133,7 @@ void MainWindow::on_btnQuickCheck_clicked()
             if(TesterType == 5 || TesterType == 6)
                 ui->labelCurrentState->setText(tr("检测"));
             //显示运行参数预览界面
-            QByteArray sendData = crc16Hex("00010301");
-            m_connect485.Send_Data(sendData);
-            Delay_MSec(2000);
-            sendData = crc16Hex("00010401");
+            QByteArray sendData = crc16Hex("00010401");
             m_connect485.Send_Data(sendData);
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
@@ -1143,6 +1141,14 @@ void MainWindow::on_btnQuickCheck_clicked()
             m_connect485.Send_Data(sendData);
             //启动一次充电
             QByteArray OnOff1 = crc16Hex("000301");
+            m_connect485.Send_Data(OnOff1);
+            Delay_MSec(50);
+            m_connect485.Send_Data(OnOff1);
+            Delay_MSec(50);
+            OnOff1 = crc16Hex("000300");
+            Delay_MSec(50);
+            m_connect485.Send_Data(OnOff1);
+            Delay_MSec(50);
             m_connect485.Send_Data(OnOff1);
         }
     }
@@ -1177,6 +1183,7 @@ void MainWindow::on_btnChargeOnce_clicked()
             m_connect485.Send_Data(sendData);
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
+            OnOff = crc16Hex("000301");
         }
     }
 }
@@ -1210,6 +1217,7 @@ void MainWindow::on_btnDischargeOnce_clicked()
             m_connect485.Send_Data(sendData);
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
+            OnOff = crc16Hex("000301");
         }
     }
 }
@@ -1243,6 +1251,7 @@ void MainWindow::on_btnMaintain_clicked()
             m_connect485.Send_Data(sendData);
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
+            OnOff = crc16Hex("000301");
         }
     }
 }
@@ -1337,11 +1346,15 @@ void MainWindow::on_btnConfirm_clicked()
             //将设置发送到单片机
             QByteArray sendData = crc16Hex(dataString);
             m_connect485.Send_Data(sendData);
-            Sleep(500);
+            Delay_MSec(100);
+            m_connect485.Send_Data(sendData);
+            Delay_MSec(100);
+            m_connect485.Send_Data(sendData);
+            Delay_MSec(500);
             //显示运行参数预览界面
             sendData = crc16Hex("000B");
             m_connect485.Send_Data(sendData);
-            Sleep(500);
+            Delay_MSec(500);
             //显示运行参数预览界面
             sendData = crc16Hex("00010301");
             m_connect485.Send_Data(sendData);
@@ -1522,7 +1535,7 @@ void MainWindow::on_boxBatteryV_currentIndexChanged(int index)
     }
     else if(ui->boxBatteryType->currentIndex()==3)
     {
-        omega = ((ui->boxBatteryV->currentText().toFloat()/12) * (1 + 300/ui->EditBatteryAh->text().toFloat()));
+        omega = ((ui->boxBatteryV->currentText().toFloat()/12) * (1 + 400/ui->EditBatteryAh->text().toFloat()));
         if (omega > 100) omega = 100;
         else if (omega < 1) omega = 1;
         ui->EditBatteryOmega->setText(QString::number(omega, 'f', 2));
@@ -1636,7 +1649,7 @@ void MainWindow::on_EditBatteryAh_textChanged(const QString &arg1)
     }
     else if(ui->boxBatteryType->currentIndex()==3)  //铅酸
     {
-        omega = ((ui->boxBatteryV->currentText().toFloat()/12) * (1 + 300/ui->EditBatteryAh->text().toFloat()));
+        omega = ((ui->boxBatteryV->currentText().toFloat()/12) * (1 + 400/ui->EditBatteryAh->text().toFloat()));
         if (omega > 100) omega = 100;
         else if (omega < 1) omega = 1;
         ui->EditBatteryOmega->setText(QString::number(omega, 'f', 2));
@@ -1882,7 +1895,7 @@ void MainWindow::on_EditBatteryAh_editingFinished()
     }
     else if(ui->boxBatteryType->currentIndex()==3)
     {
-        omega = ((ui->boxBatteryV->currentText().toFloat()/12) * (1 + 300/ui->EditBatteryAh->text().toFloat()));
+        omega = ((ui->boxBatteryV->currentText().toFloat()/12) * (1 + 400/ui->EditBatteryAh->text().toFloat()));
         if (omega > 100) omega = 100;
         else if (omega < 1) omega = 1;
         ui->EditBatteryOmega->setText(QString::number(omega, 'f', 2));
@@ -1981,6 +1994,19 @@ void MainWindow::on_btnLanguage_clicked()
     }
     QApplication::installTranslator(&m_qtTs);
     ui->retranslateUi(this);
+
+    if(ui->radioBtn_485->isChecked() == true)  //485模式
+    {
+        //轮询
+        for(int k = 0; k <= maxDevices; k++)
+        {
+            QString Head = QString("%1").arg(k, 2, 16, QLatin1Char('0'));
+            QString dataString = Head + "0b";
+            QByteArray getAddress = crc16Hex(dataString);
+            m_connect485.Send_Data(getAddress);
+            Delay_MSec(50);
+        }
+    }
 }
 
 
