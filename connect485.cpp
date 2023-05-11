@@ -27,6 +27,10 @@ connect485::connect485(QWidget *parent) :
         ui->comboBox_serial->setDisabled(true);//串口号下拉列表变灰
         ui->comboBox_baudrate->setDisabled(true);//波特率下接列表变灰
         ui->lineEdit_max->setDisabled(true);
+        ui->comboBox_serial->setStyleSheet("background-color: #F2F2F2;");//按键颜色改变
+        ui->comboBox_baudrate->setStyleSheet("background-color: #F2F2F2;");//按键颜色改变
+        ui->lineEdit_max->setStyleSheet("background-color: #F2F2F2;");//按键颜色改变
+        ui->lineEdit_max->setDisabled(true);
     }
     else
     {
@@ -157,6 +161,10 @@ void connect485::on_btn_open_clicked()
         ui->comboBox_serial->setDisabled(true);//串口号下拉列表变灰
         ui->comboBox_baudrate->setDisabled(true);//波特率下接列表变灰
         ui->lineEdit_max->setDisabled(true);
+        ui->comboBox_serial->setStyleSheet("background-color: #F2F2F2;");//按键颜色改变
+        ui->comboBox_baudrate->setStyleSheet("background-color: #F2F2F2;");//按键颜色改变
+        ui->lineEdit_max->setStyleSheet("background-color: #F2F2F2;");//按键颜色改变
+        ui->lineEdit_max->setDisabled(true);
         serial_open_flag = true;
         sendSingnalFunc(1);
         int num = ui->lineEdit_max->text().toInt();
@@ -172,6 +180,10 @@ void connect485::on_btn_open_clicked()
         port.close();//关闭串口
         ui->comboBox_serial->setEnabled(true);//串口号下拉列表变亮
         ui->comboBox_baudrate->setEnabled(true);//串口号下拉列表变亮
+        ui->lineEdit_max->setEnabled(true);
+        ui->comboBox_serial->setStyleSheet("background-color: #FFFFFF;");//按键颜色改变
+        ui->comboBox_baudrate->setStyleSheet("background-color: #FFFFFF;");//按键颜色改变
+        ui->lineEdit_max->setStyleSheet("background-color: #FFFFFF;");//按键颜色改变
         ui->lineEdit_max->setEnabled(true);
         ui->btn_open->setText(tr("打开串口"));
         serial_open_flag = false;

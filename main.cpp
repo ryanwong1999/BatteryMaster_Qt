@@ -20,6 +20,6 @@ int main(int argc, char *argv[])
     return a.exec();
 
 //    //全局字体
-//    QFont font("Microsoft YaHei", 10);
+//    QFont font("Microsoft YaHei", 10, 30);
 //    a.setFont(font);
 }

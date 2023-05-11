@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     //默认选择485模式
     ui->radioBtn_485->setChecked(true);
+    this->setWindowTitle("BM 系列 电池检测-充电-放电-维护仪客户端软件");
     //485连接成功后禁用combobox ui，确保不会蓝牙和485同时连接
     connect(&m_connect485, &connect485::setDisableUI, this, &MainWindow::DisableUI);
     connect(&m_connect485, &connect485::dataReceived, this, &MainWindow::dataReceived);
@@ -108,8 +109,7 @@ void MainWindow::GetStatus1()
             //显示暂停状态
             if(!btnPauseResume)
             {
-                ui->btnPauseResume->setStyleSheet("background-color: #00C5CD;"
-                                                  "color: #FFFFFF;");
+                ui->btnPauseResume->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
                 if(TesterType == 5 || TesterType == 6)
                 {
                     if(currentState == 1) ui->labelCurrentState->setText(tr("检测"));
@@ -120,8 +120,7 @@ void MainWindow::GetStatus1()
             }
             else
             {
-                ui->btnPauseResume->setStyleSheet("background-color: #DD2222;"
-                                                  "color: #FFFFFF;");
+                ui->btnPauseResume->setStyleSheet("background-color: #DD2222;" "color: #FFFFFF;");
                 if(TesterType == 5 || TesterType == 6)
                     ui->labelCurrentState->setText(tr("暂停"));
             }
@@ -1110,8 +1109,7 @@ void MainWindow::ButtonSetColor()
     QList<QPushButton*> btns = ui->ButtonWidget->findChildren<QPushButton*>();
     foreach(QPushButton* btn, btns)
     {
-        btn->setStyleSheet("background-color: #f2f2f2;"
-                           "color: #000000;");
+        btn->setStyleSheet("background-color: #f2f2f2;" "color: #000000;");
     }
 }
 
@@ -1122,8 +1120,7 @@ void MainWindow::on_btnQuickCheck_clicked()
     {
         currentState = 1;
         ButtonSetColor();
-        ui->btnQuickCheck->setStyleSheet("background-color: #00C5CD;"
-                                         "color: #FFFFFF;");
+        ui->btnQuickCheck->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
         //蓝牙模式
         if(ui->radioBtn_blue->isChecked() == true)
         {
@@ -1158,8 +1155,7 @@ void MainWindow::on_btnChargeOnce_clicked()
     {
         currentState = 2;
         ButtonSetColor();
-        ui->btnChargeOnce->setStyleSheet("background-color: #00C5CD;"
-                                         "color: #FFFFFF;");
+        ui->btnChargeOnce->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
         //蓝牙模式
         if(ui->radioBtn_blue->isChecked() == true)
         {
@@ -1192,8 +1188,7 @@ void MainWindow::on_btnDischargeOnce_clicked()
     {
         currentState = 3;
         ButtonSetColor();
-        ui->btnDischargeOnce->setStyleSheet("background-color: #00C5CD;"
-                                            "color: #FFFFFF;");
+        ui->btnDischargeOnce->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
         //蓝牙模式
         if(ui->radioBtn_blue->isChecked() == true)
         {
@@ -1226,8 +1221,7 @@ void MainWindow::on_btnMaintain_clicked()
     {
         currentState = 4;
         ButtonSetColor();
-        ui->btnMaintain->setStyleSheet("background-color: #00C5CD;"
-                                       "color: #FFFFFF;");
+        ui->btnMaintain->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
         //蓝牙模式
         if(ui->radioBtn_blue->isChecked() == true)
         {
@@ -1980,10 +1974,10 @@ void MainWindow::DisableUI(int cmd)
 {
     switch (cmd) {
         case 0:
-            ui->mode_select_box->setEnabled(true);
+            ui->widget_mode->setEnabled(true);
             break;
         case 1:
-            ui->mode_select_box->setDisabled(true);
+            ui->widget_mode->setDisabled(true);
             break;
         default:
             break;

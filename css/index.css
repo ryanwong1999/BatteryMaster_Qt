@@ -31,6 +31,8 @@ QGroupBox { border: 2px solid #DCDFE6; border-radius: 6px;/* font-size: 13px;  *
 QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0px 5px 3px; }
 #w_bg_2 { background-color: #f2f1f5; border-radius: 22px; }
 #centralwidget { background-color: #f2f1f5; border-radius: 22px; }
-#btn_scan, #btn_open, #btnQuickCheck, #btnChargeOnce, #btnDischargeOnce, #btnMaintain, #btnMaintain, #btnPauseResume  { height: 16px; font-size: 14px; background-color: #f2f2f2; border: 1px solid #DCDFE6; border-radius: 15px; padding: 6px 20px; }
-#btn_scan:hover, #btn_open:hover, #btnQuickCheck:hover, #btnChargeOnce:hover, #btnDischargeOnce:hover, #btnMaintain:hover, #btnPauseResume:hover { color: #ffffff; font-weight: bold; background-color: #00C5CD; }
+#btnQuickCheck, #btnChargeOnce, #btnDischargeOnce, #btnMaintain, #btnMaintain, #btnPauseResume  { height: 16px; font-size: 14px; background-color: #ffffff; border: 1px solid #DCDFE6; border-radius: 18px; padding: 6px 20px; }
+#btnQuickCheck:hover, #btnChargeOnce:hover, #btnDischargeOnce:hover, #btnMaintain:hover, #btnPauseResume:hover { color: #ffffff; font-weight: bold; background-color: #00C5CD; }
+/*#btn_scan, #btn_open{ height: 16px; font-size: 14px; background-color: #ffffff; border: 1px solid #DCDFE6; border-radius: 15px; padding: 6px 20px; }
+#btn_scan:hover, #btn_open:hover { color: #ffffff; font-weight: bold; background-color: #00C5CD; }*/
 #mode_select_box { border: 2px solid #DCDFE6; border-radius: 6px;/* font-size: 13px;  */ margin-top: 15px;}
