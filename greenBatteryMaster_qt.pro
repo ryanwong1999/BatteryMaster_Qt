@@ -44,3 +44,6 @@ win32-msvc*: {
 
 RESOURCES += \
     res.qrc
+
+TRANSLATIONS = greenBatteryMaster_qt_cn.ts\
+               greenBatteryMaster_qt_en.ts
