@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>css/index.css</file>
         <file>css/logo.png</file>
+        <file>greenBatteryMaster_qt_cn.qm</file>
+        <file>greenBatteryMaster_qt_en.qm</file>
     </qresource>
 </RCC>

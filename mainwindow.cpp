@@ -1969,6 +1969,21 @@ void MainWindow::on_EditDischargeA_editingFinished()
     }
 }
 
+void MainWindow::on_btnLanguage_clicked()
+{
+    if(ui->btnLanguage->text()=="English")
+    {
+        m_qtTs.load(":/greenBatteryMaster_qt_en.qm");
+    }
+    else
+    {
+        m_qtTs.load(":/greenBatteryMaster_qt_cn.qm");
+    }
+    QApplication::installTranslator(&m_qtTs);
+    ui->retranslateUi(this);
+}
+
+
 //禁用选择连接方式
 void MainWindow::DisableUI(int cmd)
 {
@@ -2021,3 +2036,4 @@ QByteArray MainWindow::crc16Hex(QString originData)
     QByteArray allData = QByteArray::fromHex(all.toLatin1());
     return allData;
 }
+

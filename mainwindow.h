@@ -136,6 +136,7 @@ private slots:
     void on_EditChargeA_editingFinished();
     void on_EditChargeV_editingFinished();
     void on_EditDischargeA_editingFinished();
+    void on_btnLanguage_clicked();
 
 private:
     Ui::MainWindow *ui;
