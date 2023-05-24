@@ -84,9 +84,13 @@ bool checkCRC(QByteArray data)
 
 void connect485::Send_Data(const QByteArray &data)
 {
-    qDebug() << "connect485::Send_Data: " << data;
+    time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+    char e [80];
+    strftime(e,80,"%H:%M:%S",now);
+    qDebug() << "send bbccdd" << e;
+    qDebug() << "connect485::Send_Data: " << data.toHex() << " " << e;
     port.write(data);
-    port.waitForBytesWritten(10);
 }
 
 //读取接收到的数据

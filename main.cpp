@@ -15,8 +15,11 @@ int main(int argc, char *argv[])
         file.close();
     }
 
-    MainWindow w;
-    w.show();
+    //将QWidget实例创建到堆上
+    MainWindow *w = new MainWindow();
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->setWindowIcon(QIcon(":/image/batteryTopico.ico"));
+    w->show();
     return a.exec();
 
 //    //全局字体

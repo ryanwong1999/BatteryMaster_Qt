@@ -6,7 +6,7 @@ QStringList myList;
 QByteArray OnOff = "";
 bool btnPauseResume = false;
 int shutdown_Dialog=0;
-int i_0a = 0, i_0c = 0;
+int i_0a = 0, i_0c = 0, c_cnt = 0;
 int fill_cnt = 0;
 int maxDevices = 1;
 int firstStart = 0;
@@ -41,11 +41,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer5,SIGNAL(timeout()),this,SLOT(writeToCSV()));
     connect(timer6,SIGNAL(timeout()),this,SLOT(deRate()));
     //开始倒计时
-    timer1->start(500);
-    timer2->start(2550);
+    timer1->start(1550);
+    timer2->start(250);
 //    timer3->start(1100);
     connectMulti = 1;
     OnOff = crc16Hex("000301");
+    if(maxDevices > 1) connectMulti = 1;
 }
 
 //析构
@@ -54,25 +55,18 @@ MainWindow::~MainWindow()
     qDebug() << "886--------------------------------";
     //暂停
     OnOff = crc16Hex("000300");
-    for(int i = 0; i <= 20; i++)
+    for(int i = 0; i <= 5; i++)
     {
         m_connect485.Send_Data(OnOff);
-        Delay_MSec(50);
+        Delay_MSec(100);
     }
     //返回主界面
     QByteArray gohome = crc16Hex("00010100");
-    for(int i = 0; i <= 20; i++)
+    for(int i = 0; i <= 5; i++)
     {
         m_connect485.Send_Data(gohome);
-        Delay_MSec(50);
+        Delay_MSec(100);
     }
-    //关闭串口
-    for(int i = 0; i <= 20; i++)
-    {
-        connect485::port_close();
-        Delay_MSec(50);
-    }
-    Delay_MSec(100);
     delete ui;
     delete timer1;
     delete timer2;
@@ -80,12 +74,7 @@ MainWindow::~MainWindow()
     delete timer4;
     delete timer5;
     delete timer6;
-    //关闭串口
-    for(int i = 0; i <= 20; i++)
-    {
-        connect485::port_close();
-        Delay_MSec(50);
-    }
+    close();
 }
 
 //定时器结束1
@@ -97,17 +86,38 @@ void MainWindow::GetStatus1()
     }
     else if(ui->radioBtn_485->isChecked() == true)
     {
-        if(i_0a == 0)
+
+    }
+}
+
+//定时器结束2
+void MainWindow::GetStatus2()
+{
+    if(ui->radioBtn_blue->isChecked() == true){
+
+    }
+    else if(ui->radioBtn_485->isChecked() == true)
+    {
+        if(c_cnt <= maxDevices)
         {
             QByteArray disableMainCtrl = crc16Hex("bbccdd");
             m_connect485.Send_Data(disableMainCtrl);
-            i_0a = 1;
-        }
-        else if(i_0a == 1 && currentState != 1)
-        {
+            Delay_MSec(80);
+            QString Head = QString("%1").arg(c_cnt, 2, 16, QLatin1Char('0'));
+            QString dataString_a = Head + "0a";
+            QByteArray getAddress_a = crc16Hex(dataString_a);
+            m_connect485.Send_Data(getAddress_a);
+            Delay_MSec(80);
+            QString dataString = Head + "0c";
+            QByteArray getAddress_c = crc16Hex(dataString);
+            m_connect485.Send_Data(getAddress_c);
+            Delay_MSec(80);
+            if(currentState == 1)
+            {
+                i_0c = 0;
+                return;
+            }
             m_connect485.Send_Data(OnOff);
-            i_0a = 0;
-            //显示暂停状态
             if(!btnPauseResume)
             {
                 ui->btnPauseResume->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
@@ -125,43 +135,9 @@ void MainWindow::GetStatus1()
                 if(TesterType == 5 || TesterType == 6)
                     ui->labelCurrentState->setText(tr("暂停"));
             }
+            c_cnt++;
         }
-    }
-}
-
-//定时器结束2
-void MainWindow::GetStatus2()
-{
-    if(ui->radioBtn_blue->isChecked() == true){
-
-    }else if(ui->radioBtn_485->isChecked() == true)
-    {
-        if(i_0c == 0)
-        {
-            //轮询
-            for(int k = 0; k <= maxDevices; k++)
-            {
-                QString Head = QString("%1").arg(k, 2, 16, QLatin1Char('0'));
-                QString dataString = Head + "0a";
-                QByteArray getAddress = crc16Hex(dataString);
-                m_connect485.Send_Data(getAddress);
-                Delay_MSec(60);
-            }
-            i_0c = 1;
-        }
-        else if(i_0c == 1)
-        {
-            //轮询
-            for(int k = 0; k <= maxDevices; k++)
-            {
-                QString Head = QString("%1").arg(k, 2, 16, QLatin1Char('0'));
-                QString dataString = Head + "0c";
-                QByteArray getAddress = crc16Hex(dataString);
-                m_connect485.Send_Data(getAddress);
-                Delay_MSec(60);
-            }
-            i_0c = 0;
-        }
+        else c_cnt = 0;
     }
 }
 
@@ -1184,6 +1160,7 @@ void MainWindow::on_btnChargeOnce_clicked()
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
             OnOff = crc16Hex("000301");
+            m_connect485.Send_Data(OnOff);
         }
     }
 }
@@ -1218,6 +1195,7 @@ void MainWindow::on_btnDischargeOnce_clicked()
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
             OnOff = crc16Hex("000301");
+            m_connect485.Send_Data(OnOff);
         }
     }
 }
@@ -1252,6 +1230,7 @@ void MainWindow::on_btnMaintain_clicked()
             Delay_MSec(50);
             m_connect485.Send_Data(sendData);
             OnOff = crc16Hex("000301");
+            m_connect485.Send_Data(OnOff);
         }
     }
 }
@@ -1273,14 +1252,37 @@ void MainWindow::on_btnPauseResume_clicked()
             if(btnPauseResume)
             {
                  OnOff = crc16Hex("000301");
+                 m_connect485.Send_Data(OnOff);
+                 Delay_MSec(100);
+                 m_connect485.Send_Data(OnOff);
                  btnPauseResume = false;
             }
             else
             {
                 OnOff = crc16Hex("000300");
+                m_connect485.Send_Data(OnOff);
+                Delay_MSec(100);
+                m_connect485.Send_Data(OnOff);
                 btnPauseResume = true;
             }
             qDebug() << "OnOff" << OnOff;
+        }
+        if(!btnPauseResume)
+        {
+            ui->btnPauseResume->setStyleSheet("background-color: #00C5CD;" "color: #FFFFFF;");
+            if(TesterType == 5 || TesterType == 6)
+            {
+                if(currentState == 1) ui->labelCurrentState->setText(tr("检测"));
+                else if(currentState == 2) ui->labelCurrentState->setText(tr("充电"));
+                else if(currentState == 3) ui->labelCurrentState->setText(tr("放电"));
+                else if(currentState == 4) ui->labelCurrentState->setText(tr("维护"));
+            }
+        }
+        else
+        {
+            ui->btnPauseResume->setStyleSheet("background-color: #DD2222;" "color: #FFFFFF;");
+            if(TesterType == 5 || TesterType == 6)
+                ui->labelCurrentState->setText(tr("暂停"));
         }
     }
 }
